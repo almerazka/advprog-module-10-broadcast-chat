@@ -17,3 +17,9 @@
 ![image](https://github.com/user-attachments/assets/211ebe56-93b2-4752-82e9-f84479648e75)
 
 Untuk mengubah port dari **2000** ke **8080**, diperlukan modifikasi pada kedua file karena B adalah protokol berbasis koneksi yang memerlukan sinkronisasi antara _client_ dan _server_. Pada `server.rs`, kita harus mengubah `TcpListener::bind("127.0.0.1:2000")` menjadi `TcpListener::bind("127.0.0.1:8080")` agar server mendengarkan di port **8080**. Sedangkan pada `client.rs`, **URI** harus diubah dari `ws://127.0.0.1:2000` menjadi `ws://127.0.0.1:8080` agar _client_ terhubung ke port yang benar. Jika hanya salah satu yang diubah, koneksi akan gagal dengan error **"Connection refused"** karena _client_ mencoba _connect_ ke port yang berbeda dari yang di-_listen_ _server_.
+
+## 🥑 Small changes. Add some information to client
+
+![image](https://github.com/user-attachments/assets/7d660e8b-8098-4f49-bc5b-89e5725cb686)
+
+Untuk menambahkan informasi pengirim pada setiap pesan _chat_, dilakukan modifikasi pada `server.rs` dalam fungsi `handle_connection` dengan mengubah format pesan yang di-_broadcast_. Alih-alih hanya mengirim teks pesan asli melalui `bcast_tx.send(text.into())`, format pesan diubah menjadi `bcast_tx.send(format!("{addr:?} : {text}"))` sehingga setiap pesan yang di-_broadcast_ akan menyertakan informasi alamat **IP** dan **port** pengirim. Perubahan ini memungkinkan semua _client_ yang menerima pesan dapat mengetahui siapa pengirimnya berdasarkan alamat koneksi, seperti yang terlihat pada output dimana pesan **"Hello"** ditampilkan sebagai` "From server: 127.0.0.1:49324 : Hello" ` yang menunjukkan bahwa pesan tersebut dikirim oleh _client_ dengan alamat `127.0.0.1:49324`. Modifikasi sederhana ini meningkatkan transparansi komunikasi dalam _chat room_ dengan memberikan konteks tentang identitas pengirim tanpa memerlukan sistem autentikasi yang kompleks.
